@@ -97,20 +97,13 @@ class Worker(object):
         score = 0.0
         try:
             res = r.recognize_google(audio_listened, language=lan, show_all=True)
-            found = False
             if isinstance(res, dict):
                 for al in res['alternative']:
-                    if found:
-                        continue
                     if 'confidence' in al.keys():
-                        score = al['confidence']
-                        found = True
-            if not found:
-                score = 0.0
+                        if al['confidence'] > score:
+                            score = al['confidence']
         except sr.UnknownValueError as e:
-            score = 0.0
             print("Error:", str(e))
-
         mutex.acquire()
         scores[lan].append(score)
         mutex.release()
